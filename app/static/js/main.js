@@ -85,7 +85,6 @@ document.addEventListener('DOMContentLoaded', function() {
             preview.style.display = 'block';
             preview.src = e.target.result;
             processBtn.disabled = false;
-            optionsPanel.style.display = 'block';
         }
         reader.readAsDataURL(file);
         
@@ -100,21 +99,8 @@ document.addEventListener('DOMContentLoaded', function() {
         uploadForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const formData = new FormData(uploadForm);
-            
-            // Add all options to formData
-            formData.append('recurrenceType', document.getElementById('recurrenceType').value);
-            formData.append('duration', document.getElementById('duration').value);
-            formData.append('calendarId', document.getElementById('calendarId').value);
-            formData.append('reminderTime', document.getElementById('reminderTime').value);
-            
-            if (document.getElementById('calendarId').value === 'new') {
-                formData.append('calendarName', document.getElementById('calendarName').value);
-            }
-            
-            if (document.getElementById('locationPrefix').value) {
-                formData.append('locationPrefix', document.getElementById('locationPrefix').value);
-            }
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
 
             // Show loading state
             processBtn.disabled = true;
@@ -134,7 +120,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Reset form after success
                     uploadForm.reset();
                     preview.style.display = 'none';
-                    optionsPanel.style.display = 'none';
                     processBtn.disabled = true;
                 } else {
                     showToast('Error: ' + result.error, 'error');
