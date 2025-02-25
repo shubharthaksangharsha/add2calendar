@@ -1,9 +1,17 @@
 from flask import Flask
-from config import Config
 import os
 
 app = Flask(__name__)
-app.config.from_object(Config)
+
+# Try to import config, but have fallback if it fails
+try:
+    from config import Config
+    app.config.from_object(Config)
+except ImportError:
+    # Fallback configuration
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-key-for-testing')
+    app.config['UPLOAD_FOLDER'] = 'uploads'
+    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max upload
 
 # Create uploads folder if it doesn't exist
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
