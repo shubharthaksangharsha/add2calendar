@@ -69,9 +69,7 @@ def google_auth():
         access_type='offline',
         include_granted_scopes='true'
     )
-    
     session['state'] = state
-    
     return redirect(authorization_url)
 
 @app.route('/oauth2callback')
@@ -180,4 +178,12 @@ def process_timetable():
 @app.route('/logout')
 def logout():
     session.clear()
-    return redirect(url_for('index')) 
+    return redirect(url_for('index'))
+
+@app.route('/privacy')
+def privacy_policy():
+    return render_template('privacy.html')
+
+@app.route('/terms')
+def terms_of_service():
+    return render_template('terms.html') 
