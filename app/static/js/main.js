@@ -29,6 +29,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const uploadStatus = document.getElementById('uploadStatus');
     const fileName = document.getElementById('fileName');
     const uploadBtn = document.getElementById('uploadBtn');
+    
+    // Global variable to store the selected file
+    let selectedFile = null;
 
     // Show options when calendar type changes
     if (calendarIdSelect) {
@@ -57,6 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
             uploadArea.classList.remove('drag-over');
             const file = e.dataTransfer.files[0];
             if (file && file.type.startsWith('image/')) {
+                selectedFile = file;
                 handleFile(file);
             }
         });
@@ -68,6 +72,7 @@ document.addEventListener('DOMContentLoaded', function() {
         for (let item of items) {
             if (item.type.startsWith('image/')) {
                 const file = item.getAsFile();
+                selectedFile = file;
                 handleFile(file);
                 break;
             }
@@ -79,6 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
         fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
+                selectedFile = file;
                 handleFile(file);
             }
         });
@@ -87,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle upload button click
     if (uploadBtn) {
         uploadBtn.addEventListener('click', function() {
-            if (fileInput.files.length > 0) {
+            if (selectedFile) {
                 // Show preview and options panel
                 if (preview) {
                     preview.style.display = 'block';
@@ -102,7 +108,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     processBtn.disabled = false;
                 }
                 
-                showToast('Image uploaded successfully!', 'success');
+                showToast('Image ready for processing!', 'success');
+            } else {
+                showToast('Please select a file first', 'error');
             }
         });
     }
@@ -111,6 +119,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const reader = new FileReader();
         reader.onload = function(e) {
             if (preview) {
+                preview.style.display = 'block';
                 preview.src = e.target.result;
             }
             
@@ -123,13 +132,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         reader.readAsDataURL(file);
-        
-        // Create a new File object to attach to the form
-        if (fileInput) {
-            const dataTransfer = new DataTransfer();
-            dataTransfer.items.add(file);
-            fileInput.files = dataTransfer.files;
-        }
     }
 
     // Handle form submission
@@ -137,12 +139,15 @@ document.addEventListener('DOMContentLoaded', function() {
         uploadForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            if (!fileInput.files || fileInput.files.length === 0) {
+            if (!selectedFile) {
                 showToast('Please select a file to upload', 'error');
                 return;
             }
             
-            const formData = new FormData(uploadForm);
+            const formData = new FormData();
+            
+            // Add the file to formData
+            formData.append('file', selectedFile);
             
             // Add all options to formData
             if (document.getElementById('recurrenceType')) {
@@ -188,10 +193,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     showToast('Timetable successfully added to your calendar!', 'success');
                     // Reset form after success
                     uploadForm.reset();
+                    selectedFile = null;
                     if (preview) preview.style.display = 'none';
                     if (optionsPanel) optionsPanel.style.display = 'none';
                     if (uploadStatus) uploadStatus.style.display = 'none';
-                    if (processBtn) processBtn.disabled = true;
                 } else {
                     showToast('Error: ' + result.error, 'error');
                 }
@@ -211,19 +216,20 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-});
-
-function showToast(message, type = 'success') {
-    if (typeof Toastify === 'function') {
-        Toastify({
-            text: message,
-            duration: 3000,
-            gravity: "top",
-            position: "right",
-            className: type,
-            stopOnFocus: true,
-        }).showToast();
-    } else {
-        alert(message);
+    
+    // Toast notification function
+    function showToast(message, type) {
+        if (typeof Toastify === 'function') {
+            Toastify({
+                text: message,
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "center",
+                className: type,
+            }).showToast();
+        } else {
+            alert(message);
+        }
     }
-} 
+}); 
