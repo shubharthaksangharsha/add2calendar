@@ -46,23 +46,50 @@ def index():
 
 @app.route('/google/auth')
 def google_auth():
-    flow = Flow.from_client_secrets_file(
-        'secrets.json',
+    # Create a flow instance using client ID and secret from environment variables
+    # instead of loading from a file
+    client_config = {
+        "web": {
+            "client_id": CLIENT_ID,
+            "client_secret": CLIENT_SECRET,
+            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+            "token_uri": "https://oauth2.googleapis.com/token",
+            "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+            "redirect_uris": [url_for('oauth2callback', _external=True)]
+        }
+    }
+    
+    flow = Flow.from_client_config(
+        client_config,
         scopes=SCOPES,
         redirect_uri=url_for('oauth2callback', _external=True)
     )
+    
     authorization_url, state = flow.authorization_url(
-        access_type='offline',  # This will get us a refresh token
-        include_granted_scopes='true',
-        prompt='consent'  # Force consent screen to get refresh token
+        access_type='offline',
+        include_granted_scopes='true'
     )
+    
     session['state'] = state
+    
     return redirect(authorization_url)
 
 @app.route('/oauth2callback')
 def oauth2callback():
-    flow = Flow.from_client_secrets_file(
-        'secrets.json',
+    # Create flow using client config from environment variables
+    client_config = {
+        "web": {
+            "client_id": CLIENT_ID,
+            "client_secret": CLIENT_SECRET,
+            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+            "token_uri": "https://oauth2.googleapis.com/token",
+            "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+            "redirect_uris": [url_for('oauth2callback', _external=True)]
+        }
+    }
+    
+    flow = Flow.from_client_config(
+        client_config,
         scopes=SCOPES,
         state=session['state'],
         redirect_uri=url_for('oauth2callback', _external=True)
