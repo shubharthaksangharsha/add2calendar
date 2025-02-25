@@ -295,4 +295,32 @@ h1 {
     margin-top: 1rem;
     padding-top: 1rem;
     border-top: 1px solid #e9ecef;
+}
+
+.upload-status {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: #f0f8ff;
+    border-radius: 8px;
+    border: 1px solid #d1e7ff;
+}
+
+.upload-btn {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.upload-btn:hover {
+    background-color: #3367d6;
+}
+
+#fileName {
+    font-weight: 500;
+    word-break: break-all;
 } 

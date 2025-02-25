@@ -140,7 +140,6 @@ def process_timetable():
         # Handle new calendar creation
         if calendar_id == 'new':
             calendar_name = request.form.get('calendarName', 'University Timetable')
-            # We'll implement this in calendar_helper.py
         
         # Save file temporarily
         temp_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)

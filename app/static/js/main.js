@@ -26,6 +26,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const optionsPanel = document.getElementById('optionsPanel');
     const calendarIdSelect = document.getElementById('calendarId');
     const newCalendarSection = document.getElementById('newCalendarSection');
+    const uploadStatus = document.getElementById('uploadStatus');
+    const fileName = document.getElementById('fileName');
+    const uploadBtn = document.getElementById('uploadBtn');
 
     // Show options when calendar type changes
     if (calendarIdSelect) {
@@ -81,22 +84,42 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Handle upload button click
+    if (uploadBtn) {
+        uploadBtn.addEventListener('click', function() {
+            if (fileInput.files.length > 0) {
+                // Show preview and options panel
+                if (preview) {
+                    preview.style.display = 'block';
+                }
+                
+                if (optionsPanel) {
+                    optionsPanel.style.display = 'block';
+                }
+                
+                // Enable process button
+                if (processBtn) {
+                    processBtn.disabled = false;
+                }
+                
+                showToast('Image uploaded successfully!', 'success');
+            }
+        });
+    }
+
     function handleFile(file) {
         const reader = new FileReader();
         reader.onload = function(e) {
             if (preview) {
-                preview.style.display = 'block';
                 preview.src = e.target.result;
             }
             
-            // Enable the process button
-            if (processBtn) {
-                processBtn.disabled = false;
-            }
-            
-            // Show options panel
-            if (optionsPanel) {
-                optionsPanel.style.display = 'block';
+            // Show upload status with filename
+            if (uploadStatus) {
+                uploadStatus.style.display = 'block';
+                if (fileName) {
+                    fileName.textContent = file.name;
+                }
             }
         }
         reader.readAsDataURL(file);
@@ -113,6 +136,11 @@ document.addEventListener('DOMContentLoaded', function() {
     if (uploadForm) {
         uploadForm.addEventListener('submit', async function(e) {
             e.preventDefault();
+            
+            if (!fileInput.files || fileInput.files.length === 0) {
+                showToast('Please select a file to upload', 'error');
+                return;
+            }
             
             const formData = new FormData(uploadForm);
             
@@ -162,6 +190,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     uploadForm.reset();
                     if (preview) preview.style.display = 'none';
                     if (optionsPanel) optionsPanel.style.display = 'none';
+                    if (uploadStatus) uploadStatus.style.display = 'none';
                     if (processBtn) processBtn.disabled = true;
                 } else {
                     showToast('Error: ' + result.error, 'error');
