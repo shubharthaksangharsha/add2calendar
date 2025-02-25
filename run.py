@@ -5,7 +5,7 @@ import os
 load_dotenv()
 
 # Allow HTTP for development
-os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
+# os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
