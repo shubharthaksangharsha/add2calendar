@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Favicon for browser tab -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='images/logo.png') }}">
+    <!-- Windows Tile Icon -->
+    <meta name="msapplication-TileImage" content="{{ url_for('static', filename='images/logo.png') }}">
+    <meta name="msapplication-TileColor" content="#4285f4">
+    
+    <title>Add2Calendar</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://apis.google.com/js/api.js"></script>
+    <!-- Add Toastify CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo-section">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Add2Calendar Logo" class="logo">
+                <h1>Add2Calendar</h1>
+            </div>
+            {% if google_authenticated %}
+            <div class="user-section">
+                <div class="user-info">
+                    {% if session.get('name') %}
+                        <span class="user-name">{{ session.get('name') }}</span>
+                    {% endif %}
+                    {% if session.get('email') %}
+                        <span class="user-email">{{ session.get('email') }}</span>
+                    {% endif %}
+                </div>
+                <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+            </div>
+            {% endif %}
+        </div>
+        
+        {% if not google_authenticated %}
+            <a href="{{ url_for('google_auth') }}" class="google-btn">
+                <img src="{{ url_for('static', filename='images/google-icon.png') }}" alt="Google Icon">
+                Sign in with Google
+            </a>
+        {% else %}
+            <div id="uploadSection" class="upload-section">
+                <div class="upload-area" id="uploadArea">
+                    <div class="image-preview">
+                        <img id="preview" src="#" alt="Preview" style="display: none;">
+                    </div>
+                    <div class="upload-text">
+                        <i class="upload-icon">📄</i>
+                        <p>Drag & drop your timetable image here or</p>
+                        <label for="file" class="custom-file-upload">Choose File</label>
+                        <input type="file" name="file" id="file" accept="image/*" hidden>
+                        <p class="paste-hint">You can also paste (Ctrl+V) your image directly</p>
+                    </div>
+                </div>
+                
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <!-- Options Panel -->
+                    <div class="options-panel" id="optionsPanel" style="display: none;">
+                        <h3>Calendar Options</h3>
+                        
+                        <div class="option-group">
+                            <label for="recurrenceType">Repeat Events:</label>
+                            <select id="recurrenceType" name="recurrenceType">
+                                <option value="weekly">Every Week</option>
+                                <option value="biweekly" selected>Every 2 Weeks</option>
+                                <option value="monthly">Every Month</option>
+                                <option value="none">No Repeat</option>
+                            </select>
+                        </div>
+                        
+                        <div class="option-group">
+                            <label for="duration">Duration:</label>
+                            <select id="duration" name="duration">
+                                <option value="2">2 Months</option>
+                                <option value="4" selected>4 Months</option>
+                                <option value="6">6 Months</option>
+                                <option value="12">Full Year</option>
+                            </select>
+                        </div>
+                        
+                        <div class="option-group">
+                            <label for="calendarId">Add to Calendar:</label>
+                            <select id="calendarId" name="calendarId">
+                                <option value="primary" selected>Primary Calendar</option>
+                                <option value="new">Create New Calendar</option>
+                            </select>
+                        </div>
+                        
+                        <div id="newCalendarSection" style="display: none;">
+                            <div class="option-group">
+                                <label for="calendarName">Calendar Name:</label>
+                                <input type="text" id="calendarName" name="calendarName" placeholder="e.g., University Timetable">
+                            </div>
+                        </div>
+                        
+                        <div class="option-group">
+                            <label for="locationPrefix">Location Prefix:</label>
+                            <input type="text" id="locationPrefix" name="locationPrefix" placeholder="e.g., University of Adelaide - ">
+                        </div>
+                        
+                        <div class="option-group">
+                            <label for="reminderTime">Set Reminder:</label>
+                            <select id="reminderTime" name="reminderTime">
+                                <option value="0">No Reminder</option>
+                                <option value="10" selected>10 Minutes Before</option>
+                                <option value="30">30 Minutes Before</option>
+                                <option value="60">1 Hour Before</option>
+                                <option value="1440">1 Day Before</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="process-btn" id="processBtn" disabled>
+                        <span class="btn-text">Process Timetable</span>
+                        <div class="loading-spinner" style="display: none;"></div>
+                    </button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Add Toastify JS -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html> 
