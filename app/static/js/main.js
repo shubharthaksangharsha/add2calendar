@@ -39,23 +39,25 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Handle drag and drop
-    uploadArea.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        uploadArea.classList.add('drag-over');
-    });
+    if (uploadArea) {
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        });
 
-    uploadArea.addEventListener('dragleave', () => {
-        uploadArea.classList.remove('drag-over');
-    });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('drag-over');
+        });
 
-    uploadArea.addEventListener('drop', (e) => {
-        e.preventDefault();
-        uploadArea.classList.remove('drag-over');
-        const file = e.dataTransfer.files[0];
-        if (file && file.type.startsWith('image/')) {
-            handleFile(file);
-        }
-    });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                handleFile(file);
+            }
+        });
+    }
 
     // Handle paste
     document.addEventListener('paste', (e) => {
@@ -82,16 +84,29 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleFile(file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            preview.style.display = 'block';
-            preview.src = e.target.result;
-            processBtn.disabled = false;
+            if (preview) {
+                preview.style.display = 'block';
+                preview.src = e.target.result;
+            }
+            
+            // Enable the process button
+            if (processBtn) {
+                processBtn.disabled = false;
+            }
+            
+            // Show options panel
+            if (optionsPanel) {
+                optionsPanel.style.display = 'block';
+            }
         }
         reader.readAsDataURL(file);
         
         // Create a new File object to attach to the form
-        const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(file);
-        fileInput.files = dataTransfer.files;
+        if (fileInput) {
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            fileInput.files = dataTransfer.files;
+        }
     }
 
     // Handle form submission
@@ -99,13 +114,39 @@ document.addEventListener('DOMContentLoaded', function() {
         uploadForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const formData = new FormData();
-            formData.append('file', fileInput.files[0]);
+            const formData = new FormData(uploadForm);
+            
+            // Add all options to formData
+            if (document.getElementById('recurrenceType')) {
+                formData.append('recurrenceType', document.getElementById('recurrenceType').value);
+            }
+            if (document.getElementById('duration')) {
+                formData.append('duration', document.getElementById('duration').value);
+            }
+            if (document.getElementById('calendarId')) {
+                formData.append('calendarId', document.getElementById('calendarId').value);
+            }
+            if (document.getElementById('reminderTime')) {
+                formData.append('reminderTime', document.getElementById('reminderTime').value);
+            }
+            
+            if (document.getElementById('calendarId') && document.getElementById('calendarId').value === 'new' && document.getElementById('calendarName')) {
+                formData.append('calendarName', document.getElementById('calendarName').value);
+            }
+            
+            if (document.getElementById('locationPrefix')) {
+                formData.append('locationPrefix', document.getElementById('locationPrefix').value);
+            }
 
             // Show loading state
-            processBtn.disabled = true;
-            processBtn.querySelector('.btn-text').textContent = 'Processing...';
-            processBtn.querySelector('.loading-spinner').style.display = 'block';
+            if (processBtn) {
+                processBtn.disabled = true;
+                const btnText = processBtn.querySelector('.btn-text');
+                const loadingSpinner = processBtn.querySelector('.loading-spinner');
+                
+                if (btnText) btnText.textContent = 'Processing...';
+                if (loadingSpinner) loadingSpinner.style.display = 'block';
+            }
             
             try {
                 const response = await fetch('/process_timetable', {
@@ -119,8 +160,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     showToast('Timetable successfully added to your calendar!', 'success');
                     // Reset form after success
                     uploadForm.reset();
-                    preview.style.display = 'none';
-                    processBtn.disabled = true;
+                    if (preview) preview.style.display = 'none';
+                    if (optionsPanel) optionsPanel.style.display = 'none';
+                    if (processBtn) processBtn.disabled = true;
                 } else {
                     showToast('Error: ' + result.error, 'error');
                 }
@@ -129,21 +171,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Error:', error);
             } finally {
                 // Reset button state
-                processBtn.disabled = false;
-                processBtn.querySelector('.btn-text').textContent = 'Process Timetable';
-                processBtn.querySelector('.loading-spinner').style.display = 'none';
+                if (processBtn) {
+                    processBtn.disabled = false;
+                    const btnText = processBtn.querySelector('.btn-text');
+                    const loadingSpinner = processBtn.querySelector('.loading-spinner');
+                    
+                    if (btnText) btnText.textContent = 'Process Timetable';
+                    if (loadingSpinner) loadingSpinner.style.display = 'none';
+                }
             }
         });
     }
 });
 
 function showToast(message, type = 'success') {
-    Toastify({
-        text: message,
-        duration: 3000,
-        gravity: "top",
-        position: "right",
-        className: type,
-        stopOnFocus: true,
-    }).showToast();
+    if (typeof Toastify === 'function') {
+        Toastify({
+            text: message,
+            duration: 3000,
+            gravity: "top",
+            position: "right",
+            className: type,
+            stopOnFocus: true,
+        }).showToast();
+    } else {
+        alert(message);
+    }
 } 

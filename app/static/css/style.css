@@ -243,6 +243,7 @@ h1 {
     padding: 1.5rem;
     margin: 1.5rem 0;
     border: 1px solid #e9ecef;
+    transition: all 0.3s ease;
 }
 
 .options-panel h3 {
@@ -278,6 +279,16 @@ h1 {
     border-color: var(--primary-color);
     outline: none;
     box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+}
+
+/* Add animation for options panel */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+#optionsPanel[style*="display: block"] {
+    animation: fadeIn 0.3s ease-out;
 }
 
 #newCalendarSection {
