@@ -1,4 +1,4 @@
-# Add2Calendar
+# [Add2Calendar](https://add2calendar.onrender.com/)
 
 A web application that converts university timetable images into Google Calendar events with just a few clicks.
 
