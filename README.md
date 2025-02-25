@@ -4,6 +4,8 @@ A web application that converts university timetable images into Google Calendar
 
 ![Add2Calendar Logo](app/static/images/logo.png)
 
+![GIF](https://github.com/shubharthaksangharsha/add2calendar/blob/main/add2calendar.gif)
+
 ## Features
 
 - 🖼️ Upload timetable images through drag-and-drop or paste
