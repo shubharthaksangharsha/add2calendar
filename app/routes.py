@@ -13,6 +13,10 @@ from google.oauth2 import id_token
 from google.auth.transport import requests
 import json
 
+# Get client ID and secret from environment variables
+CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
+CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET')
+
 # OAuth2 configuration
 SCOPES = [
     'https://www.googleapis.com/auth/calendar',
@@ -21,6 +25,9 @@ SCOPES = [
     'https://www.googleapis.com/auth/userinfo.email',
     'https://www.googleapis.com/auth/userinfo.profile'
 ]
+
+# Add this near the top of your file
+print(f"Using Google Client ID: {CLIENT_ID[:5]}...{CLIENT_ID[-5:]}")  # Shows first and last 5 chars only for security
 
 # Decorator for requiring authentication
 def login_required(func):
